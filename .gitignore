@@ -1,0 +1,26 @@
+# Saida de compilacao Maven
+target/
+
+# Instalador gerado pelo gerar-instalador.cmd (vai no GitHub Releases, nao no repositorio)
+dist/
+
+# Arquivos locais do NetBeans
+nbproject/private/
+nbactions.xml
+nb-configuration.xml
+
+# Outras IDEs
+.idea/
+*.iml
+.vscode/
+
+# Logs e temporarios
+*.log
+*.tmp
+*.bak
+
+# Sistema operacional
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
