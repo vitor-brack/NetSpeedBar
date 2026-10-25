@@ -1,0 +1,65 @@
+# Gera o instalador com o Eclipse Temurin 21 e publica a Release.
+# - Tag vX.Y.Z enviada: cria a Release "NetSpeedBar X.Y.Z" com o instalador. O texto da tag anotada vira a descrição.
+# - Disparo manual (Actions > Release > Run workflow): só gera o instalador e o guarda como artefato, para testar.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Conferir a tag com o pom.xml
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: powershell
+        run: |
+          [xml] $pom = Get-Content pom.xml
+          if ("v$($pom.project.version)" -ne $env:GITHUB_REF_NAME) {
+              throw "Tag $env:GITHUB_REF_NAME diferente do pom.xml ($($pom.project.version))"
+          }
+
+      - name: Instalar o Inno Setup, se a máquina não tiver
+        shell: powershell
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+              choco install innosetup --no-progress -y
+          }
+
+      - name: Gerar o instalador
+        shell: powershell
+        run: .\gerar-instalador.ps1
+
+      - name: Guardar o instalador (disparo manual)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: instalador
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 7
+
+      # O checkout traz a tag sem a anotação: o git fetch busca de novo para o --notes-from-tag ler o texto dela
+      - name: Publicar a Release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --force --no-tags origin "refs/tags/${env:GITHUB_REF_NAME}:refs/tags/${env:GITHUB_REF_NAME}"
+          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          gh release create $env:GITHUB_REF_NAME "dist\NetSpeedBar-Setup-$version.exe" --title "NetSpeedBar $version" --notes-from-tag
