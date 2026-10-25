@@ -78,8 +78,6 @@ final class Win32 {
     static final byte AC_SRC_OVER = 0x00;
     static final byte AC_SRC_ALPHA = 0x01;
 
-    static final int LOCALE_SDECIMAL = 0x000E;
-    static final int LOCALE_STHOUSAND = 0x000F;
     static final int IDC_ARROW = 32512;
     static final int MB_ICONERROR = 0x0010;
 
@@ -123,13 +121,6 @@ final class Win32 {
         int MessageBox(HWND hWnd, String text, String caption, int type);
     }
 
-    interface Kernel32Ex extends StdCallLibrary {
-
-        Kernel32Ex INSTANCE = Native.load("kernel32", Kernel32Ex.class, W32APIOptions.DEFAULT_OPTIONS);
-
-        int GetLocaleInfoEx(String localeName, int lcType, char[] data, int size);
-    }
-
     interface IpHlpApi extends Library {
 
         IpHlpApi INSTANCE = Native.load("iphlpapi", IpHlpApi.class);
@@ -162,25 +153,6 @@ final class Win32 {
         if (User32.INSTANCE.RegisterClassEx(wc).intValue() == 0) {
             throw new IllegalStateException("RegisterClassEx(" + name + ") falhou, erro " + Native.getLastError());
         }
-    }
-
-    /**
-     * Separador decimal escolhido no Windows (Configurações > Hora e idioma > Região), ex.: ',' no Brasil.
-     * Vem do Windows e não do Java porque o Java embutido no instalador não traz os dados de idioma.
-     */
-    static char decimalSeparator() {
-        return localeChar(LOCALE_SDECIMAL, '.');
-    }
-
-    /** Separador de milhar escolhido no Windows, ex.: '.' no Brasil. */
-    static char groupingSeparator() {
-        return localeChar(LOCALE_STHOUSAND, ',');
-    }
-
-    private static char localeChar(int type, char fallback) {
-        char[] buffer = new char[8];
-        int length = Kernel32Ex.INSTANCE.GetLocaleInfoEx(null, type, buffer, buffer.length);
-        return length > 1 ? buffer[0] : fallback;
     }
 
     /** true quando a barra de tarefas usa o tema claro (Configurações > Personalização > Cores). */

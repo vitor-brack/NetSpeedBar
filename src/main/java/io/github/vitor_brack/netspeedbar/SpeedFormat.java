@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * Formata velocidades sempre com duas casas decimais ("0,00", "12,34", "123,45").
+ * Formata velocidades sempre com duas casas decimais ("0.00", "12.34", "123.45").
  * Bytes usam base 1024 (como o Windows); bits usam base 1000 (como os provedores de internet).
  */
 final class SpeedFormat {
@@ -44,27 +44,18 @@ final class SpeedFormat {
     private static final String[] BIT_SYMBOLS = {"bps", "Kbps", "Mbps", "Gbps"};
     private static final String[] SIZE_SYMBOLS = {"B", "KB", "MB", "GB", "TB"};
 
-    /** "999,99" é o maior número antes de trocar para a próxima unidade (nunca aparece "1000,00 Kbps"). */
+    /** "999.99" é o maior número antes de trocar para a próxima unidade (nunca aparece "1000.00 Kbps"). */
     private static final double NEXT_UNIT = 999.995;
 
     private final DecimalFormat number;
-    private final char decimalSeparator;
 
-    SpeedFormat(char decimalSeparator, char groupingSeparator) {
-        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.ROOT);
-        symbols.setDecimalSeparator(decimalSeparator);
-        symbols.setGroupingSeparator(groupingSeparator);
-        this.decimalSeparator = decimalSeparator;
-        number = new DecimalFormat("#,##0.00", symbols); // separador de milhar só aparece nas unidades fixas
+    /** Sempre ponto decimal e vírgula de milhar (os do Locale.ROOT), qualquer que seja o idioma do Windows. */
+    SpeedFormat() {
+        number = new DecimalFormat("#,##0.00", DecimalFormatSymbols.getInstance(Locale.ROOT)); // separador de milhar só aparece nas unidades fixas
         number.setRoundingMode(RoundingMode.HALF_UP);
     }
 
-    /** Usa os separadores de decimal e de milhar escolhidos no Windows (Região). */
-    static SpeedFormat ofWindowsSettings() {
-        return new SpeedFormat(Win32.decimalSeparator(), Win32.groupingSeparator());
-    }
-
-    /** Devolve {número, unidade}, ex.: {"12,34", "Mbps"}. */
+    /** Devolve {número, unidade}, ex.: {"12.34", "Mbps"}. */
     String[] speed(double bytesPerSecond, Unit unit) {
         double value = Math.max(0, bytesPerSecond) * (unit.bits ? 8 : 1);
         double base = unit.bits ? 1000 : 1024;
@@ -75,14 +66,14 @@ final class SpeedFormat {
         return new String[]{number.format(value / Math.pow(base, unit.power)), symbols[unit.power]};
     }
 
-    /** Quantidade total de dados, ex.: "1,25 GB". */
+    /** Quantidade total de dados, ex.: "1.25 GB". */
     String size(long bytes) {
         String[] parts = scale(Math.max(0, bytes), 1024, SIZE_SYMBOLS);
         return parts[0] + " " + parts[1];
     }
 
     /**
-     * Escala automática que começa no "K": pouco ou nenhum tráfego aparece como "0,00 Kbps", em vez de trocar
+     * Escala automática que começa no "K": pouco ou nenhum tráfego aparece como "0.00 Kbps", em vez de trocar
      * para a unidade básica ("0 bps") toda vez que a conexão fica parada.
      */
     private String[] scale(double value, double base, String[] symbols) {
@@ -97,7 +88,7 @@ final class SpeedFormat {
 
     /** O número mais largo do modo automático, para reservar um espaço fixo na barra. */
     String[] widestNumbers() {
-        return new String[]{"999" + decimalSeparator + "99"};
+        return new String[]{"999.99"};
     }
 
     /** Unidades que podem aparecer escritas no widget com esta escolha (para reservar a largura da coluna). */

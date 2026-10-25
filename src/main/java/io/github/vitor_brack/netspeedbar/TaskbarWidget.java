@@ -76,7 +76,7 @@ final class TaskbarWidget {
     private final HINSTANCE hInstance;
     private final Listener listener;
     private final TaskbarIcons icons;
-    private final SpeedFormat format = SpeedFormat.ofWindowsSettings();
+    private final SpeedFormat format = new SpeedFormat();
     private final WinUser.BLENDFUNCTION blend = new WinUser.BLENDFUNCTION();
 
     private HWND hwnd;    // a nossa janela, filha da barra de tarefas
@@ -113,7 +113,7 @@ final class TaskbarWidget {
     private float padding;
     private float gap;
     private float arrowWidth;
-    private float numberWidth; // só cresce (unidades fixas podem passar de 999,99), para não ficar "pulando"
+    private float numberWidth; // só cresce (unidades fixas podem passar de 999.99), para não ficar "pulando"
     private float unitWidth;
     private float arrowX;
     private float numberRight;
@@ -427,7 +427,7 @@ final class TaskbarWidget {
         width = (int) Math.ceil(unitX + unitWidth + padding);
     }
 
-    /** Alarga a coluna dos números se o valor atual não couber (ex.: "12.345,67 KB/s"). Devolve true se alargou. */
+    /** Alarga a coluna dos números se o valor atual não couber (ex.: "12,345.67 KB/s"). Devolve true se alargou. */
     private boolean fitNumbers() {
         if (font == null) {
             return false;

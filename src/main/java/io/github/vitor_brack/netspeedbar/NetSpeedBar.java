@@ -40,7 +40,7 @@ public final class NetSpeedBar {
     /** A bandeja muda de largura quando ícones aparecem/somem: a posição é conferida 4x por segundo. */
     private static final int LAYOUT_INTERVAL_MS = 250;
     private static final int[] INTERVALS_MS = {500, 1000, 2000};
-    private static final String[] INTERVAL_LABELS = {"0,5 segundo", "1 segundo", "2 segundos"};
+    private static final String[] INTERVAL_LABELS = {"0.5 segundo", "1 segundo", "2 segundos"};
 
     // Comandos do menu
     private static final int CMD_AUTO = 100;
@@ -56,7 +56,7 @@ public final class NetSpeedBar {
     private final WinUser.WindowProc controllerProc = this::controllerProc; // referência forte para o GC não coletar
     private final Settings settings = new Settings();
     private final NetworkMonitor network = new NetworkMonitor();
-    private final SpeedFormat format = SpeedFormat.ofWindowsSettings();
+    private final SpeedFormat format = new SpeedFormat();
     private TaskbarWidget widget;
     private HWND controller;
     private int taskbarCreatedMessage;
