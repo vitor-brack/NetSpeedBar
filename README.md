@@ -31,12 +31,15 @@ O clique direito abre o menu:
 | Desde que abriu | Mostra o total baixado e enviado desde que o widget abriu |
 | Placa de rede | **Automático** soma as placas físicas conectadas, como Ethernet e Wi-Fi, e deixa de fora as virtuais, como VPN e Hyper-V. Também dá para escolher uma placa específica |
 | Unidade | Automático em bytes (KB/s, MB/s, GB/s), automático em bits (Kbps, Mbps, Gbps) ou uma unidade fixa, de B/s a GB/s ou de bps a Gbps |
+| O que medir | **Velocidade útil** (padrão) estima só o conteúdo que chega ou sai, como os sites de teste de velocidade e a Steam mostram. **Tráfego bruto** mostra tudo que passa pela placa, incluindo os cabeçalhos dos pacotes, o que dá uns 5 a 7% a mais no download |
 | Atualizar a cada | 0.5 segundo, 1 segundo ou 2 segundos |
 | Iniciar com o Windows | Liga ou desliga a abertura automática no login |
 | Voltar à posição padrão | Aparece depois que você arrasta o widget e o devolve para perto da bandeja |
 | Sair | Fecha o widget |
 
 Os números sempre têm duas casas decimais. Nas unidades automáticas, a rede parada aparece como 0.00 KB/s (ou 0.00 Kbps), e a unidade só muda depois de 999.99. Nas unidades fixas aparece o separador de milhar, como em 12,345.67 KB/s, e o widget alarga para o número caber. Bytes usam base 1024, como o Windows, e bits usam base 1000, como os provedores de internet. O separador decimal é sempre o ponto e o de milhar é sempre a vírgula, qualquer que seja o idioma do Windows.
+
+A velocidade útil é uma estimativa: o programa desconta uma sobrecarga fixa de cada pacote que a placa contou. Em testes com download cheio, ela ficou a cerca de 2% do que o Speedtest e a Steam mostravam, menos que a diferença entre os próprios sites de teste. Com muita perda de pacotes o valor pode passar do real. Durante um download, o upload mostra perto de 0.00, porque o envio é só de confirmações de recebimento, e os sites e a Steam também não contam isso.
 
 O texto segue o tema da barra: branco na barra escura e preto na clara.
 
@@ -140,7 +143,7 @@ Uma instância nova fecha a anterior mandando `WM_CLOSE` para a janela controlad
 
 ## Privacidade
 
-O NetSpeedBar não se conecta à internet e não envia dados. Ele só lê os contadores de bytes que o Windows já mantém para cada placa de rede. As preferências (`config.properties`) e o log (`netspeedbar.log`, que recomeça ao passar de 256 KB) ficam em `%LOCALAPPDATA%\NetSpeedBar`, e a desinstalação apaga essa pasta.
+O NetSpeedBar não se conecta à internet e não envia dados. Ele só lê os contadores de bytes e de pacotes que o Windows já mantém para cada placa de rede. As preferências (`config.properties`) e o log (`netspeedbar.log`, que recomeça ao passar de 256 KB) ficam em `%LOCALAPPDATA%\NetSpeedBar`, e a desinstalação apaga essa pasta.
 
 ## Próximos passos
 
