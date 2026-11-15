@@ -54,6 +54,15 @@ final class Settings {
         set("unit", unit.name());
     }
 
+    /** true (padrão): velocidade útil estimada, como nos sites de teste e na Steam; false: tráfego bruto da placa. */
+    boolean usefulSpeed() {
+        return !props.getProperty("measure", "useful").equals("raw");
+    }
+
+    void setUsefulSpeed(boolean useful) {
+        set("measure", useful ? "useful" : "raw");
+    }
+
     int intervalMs() {
         return Math.clamp(parseLong("intervalMs", 1000), 250, 10_000);
     }

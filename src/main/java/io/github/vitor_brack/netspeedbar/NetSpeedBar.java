@@ -47,6 +47,7 @@ public final class NetSpeedBar {
     private static final int CMD_ADAPTER = 101; // 101..199: placas de rede listadas
     private static final int CMD_UNIT = 200; // 200..209: SpeedFormat.Unit
     private static final int CMD_INTERVAL = 300;
+    private static final int CMD_MEASURE = 500; // 500 = velocidade útil, 501 = tráfego bruto
     private static final int CMD_AUTOSTART = 400;
     private static final int CMD_RESET_POSITION = 401;
     private static final int CMD_EXIT = 900;
@@ -87,6 +88,7 @@ public final class NetSpeedBar {
 
         HINSTANCE hInstance = Kernel32.INSTANCE.GetModuleHandle(null);
         network.select(settings.adapterLuid());
+        network.setUseful(settings.usefulSpeed());
         network.sample(); // primeira leitura: serve de referência para a próxima
         TaskbarIcons icons = new TaskbarIcons();
         icons.start();
@@ -226,6 +228,12 @@ public final class NetSpeedBar {
             check(unitMenu, CMD_UNIT + settings.unit().ordinal());
             addSubmenu(menu, unitMenu, "Unidade");
 
+            HMENU measureMenu = user32x.CreatePopupMenu();
+            addItem(measureMenu, 0, CMD_MEASURE, "Velocidade útil (estimada)\tsem cabeçalhos, como sites e Steam");
+            addItem(measureMenu, 0, CMD_MEASURE + 1, "Tráfego bruto da placa\tcom cabeçalhos");
+            check(measureMenu, CMD_MEASURE + (settings.usefulSpeed() ? 0 : 1));
+            addSubmenu(menu, measureMenu, "O que medir");
+
             HMENU intervalMenu = user32x.CreatePopupMenu();
             for (int i = 0; i < INTERVALS_MS.length; i++) {
                 addItem(intervalMenu, 0, CMD_INTERVAL + i, INTERVAL_LABELS[i]);
@@ -267,6 +275,11 @@ public final class NetSpeedBar {
             SpeedFormat.Unit unit = SpeedFormat.Unit.values()[command - CMD_UNIT];
             settings.setUnit(unit);
             widget.setUnit(unit);
+        } else if (command == CMD_MEASURE || command == CMD_MEASURE + 1) {
+            boolean useful = command == CMD_MEASURE;
+            settings.setUsefulSpeed(useful);
+            network.setUseful(useful);
+            widget.setRates(network.downloadRate(), network.uploadRate()); // vale já, sem esperar a próxima leitura
         } else if (command >= CMD_INTERVAL && command < CMD_INTERVAL + INTERVALS_MS.length) {
             settings.setIntervalMs(INTERVALS_MS[command - CMD_INTERVAL]);
             user32x.SetTimer(controller, SAMPLE_TIMER, settings.intervalMs(), null); // mesmo ID substitui o timer
