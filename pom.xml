@@ -10,6 +10,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <exec.mainClass>io.github.vitor_brack.netspeedbar.NetSpeedBar</exec.mainClass>
         <jna.version>5.19.1</jna.version>
+        <junit.version>5.11.4</junit.version>
     </properties>
 
     <dependencies>
@@ -19,11 +20,24 @@
             <artifactId>jna-platform</artifactId>
             <version>${jna.version}</version>
         </dependency>
+        <!-- Testes das contas puras (sem JNA); escopo "test", então não entra no .jar final -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <finalName>NetSpeedBar</finalName>
         <plugins>
+            <!-- Versao fixa: a padrao do Maven e antiga demais para o JUnit 5 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
             <!-- Gera um unico .jar executavel (com o JNA dentro): javaw -jar target\NetSpeedBar.jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
